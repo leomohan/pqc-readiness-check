@@ -32,14 +32,20 @@ p{margin:0 0 .9em}
 .num{font-variant-numeric:tabular-nums}
 
 /* top bar */
-.bar{border-bottom:1px solid var(--line);background:var(--mist)}
-.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-variation-settings:"wdth" 112;font-size:16px;color:var(--ink);text-decoration:none}
+.bar{border-bottom:1px solid var(--line);background:rgba(237,241,242,.96);position:sticky;top:0;z-index:20;backdrop-filter:saturate(1.2) blur(6px)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.logo{display:block;height:38px;width:auto}
+.brand-div{width:1px;height:28px;background:var(--line)}
+.bar-right{display:flex;align-items:center;gap:18px}
+.btn.contact{background:var(--teal);border-color:var(--teal);color:#fff;padding:10px 18px;font-size:15px;white-space:nowrap}
+.btn.contact:hover{background:var(--ink);border-color:var(--ink)}
+.res-actions .btn.contact{font-size:16px;padding:12px 22px}
+.brand{display:flex;align-items:center;gap:14px;font-weight:700;font-variation-settings:"wdth" 112;font-size:16px;color:var(--ink);text-decoration:none}
 .brand svg{flex:none}
 .bar-meta{font-size:14px;color:var(--ink-3)}
 
 /* buttons and inputs */
-.btn{appearance:none;border:1.5px solid var(--ink);background:var(--ink);color:#fff;font:inherit;font-weight:650;font-size:16px;padding:12px 22px;border-radius:6px;cursor:pointer}
+.btn{appearance:none;text-decoration:none;display:inline-block;border:1.5px solid var(--ink);background:var(--ink);color:#fff;font:inherit;font-weight:650;font-size:16px;padding:12px 22px;border-radius:6px;cursor:pointer}
 .btn:hover{background:var(--teal);border-color:var(--teal)}
 .btn.ghost{background:transparent;color:var(--ink)}
 .btn.ghost:hover{background:var(--panel);color:var(--ink);border-color:var(--ink)}
@@ -65,7 +71,7 @@ select:focus,input[type=text]:focus{border-color:var(--teal);outline:none;box-sh
 
 /* quiz */
 .quiz{display:grid;grid-template-columns:260px 1fr;gap:48px;padding:40px 0 72px;align-items:start}
-.side{position:sticky;top:20px}
+.side{position:sticky;top:92px}
 .side h3{font-size:15px;font-variation-settings:"wdth" 105;color:var(--ink-2);margin-bottom:12px;font-weight:650}
 .side .count{font-size:14px;color:var(--ink-3);margin-top:14px}
 .lat-nav svg{width:100%;height:auto;display:block}
@@ -137,6 +143,7 @@ footer p{max-width:60em}
   .quiz{grid-template-columns:1fr;gap:20px;padding:20px 0 56px}
   .side{position:static;order:2}
   .bar-meta{display:none}
+  .side{top:auto}
   .lat-nav svg{max-width:340px}
   .qpanel{padding:24px 20px}
   .res-head{grid-template-columns:1fr}
@@ -144,13 +151,21 @@ footer p{max-width:60em}
   .res-grid{grid-template-columns:1fr;gap:36px}
   .barrow{grid-template-columns:130px 1fr 44px;font-size:14px}
 }
+@media (max-width:620px){
+  #app-name,.brand-div{display:none}
+  .logo{height:32px}
+  .bar .wrap{height:60px}
+  .btn.contact{padding:9px 14px;font-size:14px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes rise{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
 .hero-dot{transform-box:fill-box;transform-origin:center;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
 
 @media print{
+  .bar .wrap{height:auto;padding-top:6px;padding-bottom:10px}
   body{background:#fff;font-size:12pt}
-  .bar,.res-actions,.cta,footer .noprint,#app>.wrap>.quiz{display:none!important}
+  .bar{position:static;background:#fff}
+  .bar-right,.res-actions,.cta,footer .noprint,#app>.wrap>.quiz{display:none!important}
   .res-grid{grid-template-columns:1fr 1fr;gap:28px}
   .gaps li{break-inside:avoid}
   .note{break-inside:avoid}
@@ -160,11 +175,15 @@ footer p{max-width:60em}
 <body>
 <header class="bar">
   <div class="wrap">
-    <a class="brand" href="#" id="home-link" aria-label="Quantum-Safe Readiness Check, start page">
-      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><g fill="#0B6E6E"><circle cx="4" cy="4" r="2.6"/><circle cx="13" cy="4" r="2.6" opacity=".45"/><circle cx="22" cy="4" r="2.6" opacity=".2"/><circle cx="4" cy="13" r="2.6" opacity=".45"/><circle cx="13" cy="13" r="2.6"/><circle cx="22" cy="13" r="2.6" opacity=".45"/><circle cx="4" cy="22" r="2.6" opacity=".2"/><circle cx="13" cy="22" r="2.6" opacity=".45"/><circle cx="22" cy="22" r="2.6"/></g></svg>
+    <a class="brand" href="#" id="home-link" aria-label="Evanssion Quantum-Safe Readiness Check, start page">
+      <img src="evanssion-logo.png" alt="Evanssion" width="120" height="38" class="logo">
+      <span class="brand-div" aria-hidden="true"></span>
       <span id="app-name">Quantum-Safe Readiness Check</span>
     </a>
-    <span class="bar-meta" id="bar-meta">Runs in your browser. Nothing is sent anywhere.</span>
+    <div class="bar-right">
+      <span class="bar-meta" id="bar-meta">Runs in your browser. Nothing is sent anywhere.</span>
+      <a class="btn contact" id="bar-contact" href="mailto:marketing@evanssion.com">Contact Evanssion</a>
+    </div>
   </div>
 </header>
 
@@ -180,14 +199,15 @@ footer p{max-width:60em}
 <script>
 /* ----------------------------------------------------------------
    Configuration: edit these to brand the app before publishing.
-   Leave ctaUrl empty to hide the call-to-action on the results page.
+   Leave contactEmail empty to hide the Contact buttons and the call-to-action.
 ------------------------------------------------------------------ */
 const CONFIG = {
   appName: 'Quantum-Safe Readiness Check',
-  publisher: '',            // e.g. 'Novaala.ai'
-  ctaText: 'Want a full cryptographic inventory and a migration roadmap? Talk to us about a readiness assessment.',
-  ctaButton: 'Book a readiness assessment',
-  ctaUrl: ''                // e.g. 'mailto:hello@example.com?subject=PQC%20readiness%20assessment'
+  publisher: 'Evanssion',
+  ctaText: 'Evanssion helps organisations across the UAE find their quantum-vulnerable cryptography and plan the move to quantum-safe algorithms. Talk to us about a full readiness assessment.',
+  ctaButton: 'Contact Evanssion',
+  // the Contact button in the header and on the results page opens an email to this address
+  contactEmail: 'marketing@evanssion.com'
 };
 
 /* ----------------------------------------------------------------
@@ -541,7 +561,7 @@ function viewResults(){
     R.dom.find(x => x.d.id === 'inv').pct < 60 ? 'Run automated cryptographic discovery on your most critical systems and start a live inventory.' : 'Extend the live inventory to cloud, OT and third-party services, and produce CBOMs for critical applications.',
     `Work through the first three gaps above. Your weakest areas are ${weakest[0]}, then ${weakest[1]}.`
   ];
-  const ctaOn = !!CONFIG.ctaUrl;
+  const ctaOn = !!CONFIG.contactEmail;
   app.innerHTML = `<div class="wrap">
     <section class="res-head">
       <div>
@@ -551,7 +571,8 @@ function viewResults(){
         <p class="level">${esc(R.level.name)}<small>${esc(R.level.text)}</small></p>
       </div>
       <div class="res-actions">
-        <button class="btn" type="button" id="print">Save as PDF</button>
+        <a class="btn contact" href="${esc(mailto())}">Discuss these results with Evanssion</a>
+        <button class="btn ghost" type="button" id="print">Save as PDF</button>
         <button class="btn ghost" type="button" id="csv">Download answers (CSV)</button>
         <button class="btn ghost" type="button" id="edit">Change answers</button>
         <button class="btn ghost" type="button" id="again">Start again</button>
@@ -584,7 +605,7 @@ function viewResults(){
         <p class="heat-cap" style="margin:10px 0 0">Based on public information as of October 2026.</p>
       </div>
     </section>
-    ${ctaOn ? `<section class="cta"><p>${esc(CONFIG.ctaText)}</p><a class="btn" href="${esc(CONFIG.ctaUrl)}" target="_blank" rel="noopener">${esc(CONFIG.ctaButton)}</a></section>` : ''}
+    ${ctaOn ? `<section class="cta"><p>${esc(CONFIG.ctaText)}</p><a class="btn" href="${esc(mailto())}">${esc(CONFIG.ctaButton)}</a></section>` : ''}
   </div>`;
   document.getElementById('print').onclick = () => window.print();
   document.getElementById('csv').onclick = downloadCSV;
@@ -606,8 +627,24 @@ function downloadCSV(){
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function mailto(){
+  const subj = 'Quantum-Safe Readiness Check enquiry';
+  let body = 'Hello Evanssion team,\n\nI would like to talk about post-quantum readiness for my organisation.\n';
+  if (S.view === 'results' && answered() === TOTAL) {
+    const R = scores(), p = S.profile;
+    body += '\nMy self-check results:\n'
+      + (p.org ? 'Organisation: ' + p.org + '\n' : '')
+      + (p.sector ? 'Sector: ' + SECTORS[p.sector] + '\n' : '')
+      + 'Overall: ' + R.overall + ' out of 100 (' + R.level.name + ')\n'
+      + R.dom.map(x => x.d.name + ': ' + x.pct).join('\n') + '\n';
+  }
+  body += '\nName:\nCompany:\nPhone:\n';
+  return 'mailto:' + CONFIG.contactEmail + '?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+}
+
 function render(scrollTop){
   document.getElementById('app-name').textContent = CONFIG.appName;
+  const bc = document.getElementById('bar-contact'); bc.textContent = CONFIG.ctaButton; bc.href = mailto(); bc.classList.toggle('hidden', !CONFIG.contactEmail);
   document.getElementById('footer-org').textContent = CONFIG.publisher ? 'Published by ' + CONFIG.publisher + '.' : '';
   document.getElementById('bar-meta').textContent = S.view === 'quiz' ? `${answered()} of ${TOTAL} answered` : 'Runs in your browser. Nothing is sent anywhere.';
   if (S.view === 'quiz') viewQuiz(); else if (S.view === 'results') viewResults(); else viewIntro();

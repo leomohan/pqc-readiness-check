@@ -32,12 +32,16 @@ Open `index.html` and edit the `CONFIG` block near the top of the script:
 ```js
 const CONFIG = {
   appName: 'Quantum-Safe Readiness Check',
-  publisher: '',   // shown in the footer, e.g. 'Novaala.ai'
-  ctaText: '...',  // text of the call-to-action on the results page
-  ctaButton: 'Book a readiness assessment',
-  ctaUrl: ''       // leave empty to hide the call-to-action
+  publisher: 'Evanssion',                     // shown in the footer
+  ctaText: '...',                             // call-to-action text at the end of the results page
+  ctaButton: 'Contact Evanssion',
+  contactEmail: 'marketing@evanssion.com'     // Contact buttons open an email to this address; leave empty to hide them
 };
 ```
+
+The Contact button sits in the sticky header on every screen. On the results page, "Discuss these results with Evanssion" opens an email pre-filled with the user's scores, which they can review before sending. Nothing is sent unless the user sends that email themselves.
+
+The logo is `evanssion-logo.png`. Replace the file to update it.
 
 Questions, recommendations, area weights, maturity levels and the sector regulatory notes are in the `DOMAINS`, `LEVELS` and `REG` constants in the same file.
 
