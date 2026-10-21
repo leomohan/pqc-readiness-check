@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantum-Safe Readiness Check</title>
+<meta name="description" content="A 10-minute self-check of your organisation's readiness for post-quantum cryptography. Runs entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#13232B; --ink-2:#3E525B; --ink-3:#6B7E86;
+  --mist:#EDF1F2; --panel:#F8FAFA; --line:#C9D3D6; --line-2:#DFE6E8;
+  --teal:#0B6E6E; --teal-3:#3E9493; --teal-2:#8CC2C0; --teal-1:#CFE6E4;
+  --coral:#C8423B; --coral-1:#F6DEDB;
+  --focus:#1F6FEB;
+  --display: 'Archivo', system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font-family:var(--display);font-size:16.5px;line-height:1.55;font-variation-settings:"wdth" 100}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-variation-settings:"wdth" 118;line-height:1.08;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(34px,5.4vw,58px);font-weight:780}
+h2{font-size:clamp(24px,3vw,32px);font-weight:740}
+h3{font-size:19px;font-weight:700}
+p{margin:0 0 .9em}
+.num{font-variant-numeric:tabular-nums}
+
+/* top bar */
+.bar{border-bottom:1px solid var(--line);background:var(--mist)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-variation-settings:"wdth" 112;font-size:16px;color:var(--ink);text-decoration:none}
+.brand svg{flex:none}
+.bar-meta{font-size:14px;color:var(--ink-3)}
+
+/* buttons and inputs */
+.btn{appearance:none;border:1.5px solid var(--ink);background:var(--ink);color:#fff;font:inherit;font-weight:650;font-size:16px;padding:12px 22px;border-radius:6px;cursor:pointer}
+.btn:hover{background:var(--teal);border-color:var(--teal)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--panel);color:var(--ink);border-color:var(--ink)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;background:var(--ink);border-color:var(--ink)}
+.btn.ghost[disabled]{background:transparent}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:var(--teal);text-decoration:underline;cursor:pointer}
+label.field{display:block;margin-bottom:16px}
+label.field span{display:block;font-size:14px;font-weight:600;margin-bottom:6px;color:var(--ink-2)}
+select,input[type=text]{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+select:focus,input[type=text]:focus{border-color:var(--teal);outline:none;box-shadow:0 0 0 3px var(--teal-1)}
+
+/* intro */
+.intro{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;padding:64px 0 72px;align-items:start}
+.intro .lede{font-size:19px;color:var(--ink-2);max-width:34em;margin-top:22px}
+.facts{list-style:none;padding:0;margin:28px 0 0;display:grid;gap:10px;max-width:34em}
+.facts li{padding-left:22px;position:relative;color:var(--ink-2)}
+.facts li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.start{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px}
+.start h2{font-size:22px;margin-bottom:6px}
+.start .hint{font-size:14px;color:var(--ink-3);margin-bottom:20px}
+.lattice-hero{margin:4px 0 26px}
+.lattice-hero svg{width:100%;height:auto;display:block}
+
+/* quiz */
+.quiz{display:grid;grid-template-columns:260px 1fr;gap:48px;padding:40px 0 72px;align-items:start}
+.side{position:sticky;top:20px}
+.side h3{font-size:15px;font-variation-settings:"wdth" 105;color:var(--ink-2);margin-bottom:12px;font-weight:650}
+.side .count{font-size:14px;color:var(--ink-3);margin-top:14px}
+.lat-nav svg{width:100%;height:auto;display:block}
+.lat-nav .dot{cursor:pointer}
+.lat-legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12.5px;color:var(--ink-3);margin-top:14px}
+.lat-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.qpanel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:36px 40px}
+.qmeta{display:flex;justify-content:space-between;gap:16px;font-size:14px;color:var(--ink-3);margin-bottom:18px}
+.qmeta b{color:var(--teal);font-weight:650}
+.qtext{font-size:clamp(21px,2.4vw,26px);font-weight:680;font-variation-settings:"wdth" 108;line-height:1.25;max-width:30em;margin-bottom:10px}
+.qhelp{color:var(--ink-2);max-width:40em;font-size:15.5px}
+fieldset{border:0;margin:22px 0 0;padding:0}
+legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.opt{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:14px 16px;border:1.5px solid var(--line-2);border-radius:8px;margin-bottom:10px;cursor:pointer;background:#fff;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--teal-2)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .mark{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);margin-top:1px;display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--ink-3)}
+.opt.sel{border-color:var(--teal);background:#F1F8F7}
+.opt.sel .mark{border-color:var(--teal);background:var(--teal);color:#fff}
+.opt:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.opt.ns{grid-template-columns:28px 1fr;background:transparent;border-style:dashed}
+.opt .t{font-size:16px}
+.qnav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}
+.kbd{font-size:13px;color:var(--ink-3)}
+
+/* results */
+.res-head{display:grid;grid-template-columns:1fr;gap:28px;padding:48px 0 28px;border-bottom:1px solid var(--line)}
+.res-head .who{font-size:15px;color:var(--ink-3);margin-bottom:10px}
+.score{display:flex;align-items:baseline;gap:14px}
+.score .big{font-size:clamp(76px,11vw,124px);font-weight:800;font-variation-settings:"wdth" 125;line-height:.9;letter-spacing:-.03em;color:var(--teal)}
+.score .of{font-size:20px;color:var(--ink-3)}
+.level{margin-top:12px;font-size:21px;font-weight:700;font-variation-settings:"wdth" 110}
+.level small{display:block;font-size:15.5px;font-weight:400;color:var(--ink-2);font-variation-settings:"wdth" 100;max-width:36em;margin-top:6px;line-height:1.5}
+.res-actions{display:flex;gap:10px;flex-wrap:wrap}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:36px 0}
+.sect-title{margin-bottom:16px}
+.bars{display:grid;gap:14px}
+.barrow{display:grid;grid-template-columns:200px 1fr 48px;gap:14px;align-items:center;font-size:15px}
+.track{height:14px;background:var(--line-2);border-radius:7px;overflow:hidden}
+.fill{height:100%;background:var(--teal);border-radius:7px}
+.fill.low{background:var(--coral)}
+.barrow .pct{text-align:right;font-weight:650}
+.heat svg{width:100%;max-width:420px;height:auto;display:block}
+.heat-cap{font-size:13.5px;color:var(--ink-3);margin-top:8px}
+.gaps{counter-reset:g;list-style:none;padding:0;margin:0;display:grid;gap:0}
+.gaps li{display:grid;grid-template-columns:36px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.gaps li:last-child{border-bottom:1px solid var(--line)}
+.gaps li::before{counter-increment:g;content:counter(g);font-weight:750;font-size:20px;color:var(--coral);font-variation-settings:"wdth" 120}
+.gaps .gq{font-weight:650;margin-bottom:4px}
+.gaps .gd{font-size:13.5px;color:var(--ink-3);margin-bottom:6px}
+.gaps .gr{color:var(--ink-2)}
+.note{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:6px;padding:20px 24px}
+.note h3{margin-bottom:8px}
+.note ul{margin:8px 0 0;padding-left:20px}
+.note li{margin-bottom:6px}
+.plan ol{padding-left:22px;margin:0}
+.plan li{margin-bottom:10px}
+.cta{margin:8px 0 48px;padding:28px 32px;background:var(--ink);color:#fff;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.cta p{margin:0;max-width:40em}
+.cta .btn{background:#fff;color:var(--ink);border-color:#fff}
+.cta .btn:hover{background:var(--teal-1);border-color:var(--teal-1)}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:13.5px;color:var(--ink-3)}
+footer p{max-width:60em}
+.full{grid-column:1/-1}
+.hidden{display:none!important}
+
+@media (max-width:900px){
+  .intro{grid-template-columns:1fr;gap:36px;padding:40px 0 56px}
+  .quiz{grid-template-columns:1fr;gap:20px;padding:20px 0 56px}
+  .side{position:static;order:2}
+  .bar-meta{display:none}
+  .lat-nav svg{max-width:340px}
+  .qpanel{padding:24px 20px}
+  .res-head{grid-template-columns:1fr}
+  .res-actions{justify-content:flex-start}
+  .res-grid{grid-template-columns:1fr;gap:36px}
+  .barrow{grid-template-columns:130px 1fr 44px;font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes rise{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.hero-dot{transform-box:fill-box;transform-origin:center;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+
+@media print{
+  body{background:#fff;font-size:12pt}
+  .bar,.res-actions,.cta,footer .noprint,#app>.wrap>.quiz{display:none!important}
+  .res-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .gaps li{break-inside:avoid}
+  .note{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#" id="home-link" aria-label="Quantum-Safe Readiness Check, start page">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><g fill="#0B6E6E"><circle cx="4" cy="4" r="2.6"/><circle cx="13" cy="4" r="2.6" opacity=".45"/><circle cx="22" cy="4" r="2.6" opacity=".2"/><circle cx="4" cy="13" r="2.6" opacity=".45"/><circle cx="13" cy="13" r="2.6"/><circle cx="22" cy="13" r="2.6" opacity=".45"/><circle cx="4" cy="22" r="2.6" opacity=".2"/><circle cx="13" cy="22" r="2.6" opacity=".45"/><circle cx="22" cy="22" r="2.6"/></g></svg>
+      <span id="app-name">Quantum-Safe Readiness Check</span>
+    </a>
+    <span class="bar-meta" id="bar-meta">Runs in your browser. Nothing is sent anywhere.</span>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <div class="wrap">
+    <p>This self-check gives an indicative view of post-quantum readiness. It is not an audit or a compliance certificate. Regulatory notes reflect public information as of October 2026; check your regulator's latest publications before relying on them.</p>
+    <p id="footer-org"></p>
+  </div>
+</footer>
+
+<script>
+/* ----------------------------------------------------------------
+   Configuration: edit these to brand the app before publishing.
+   Leave ctaUrl empty to hide the call-to-action on the results page.
+------------------------------------------------------------------ */
+const CONFIG = {
+  appName: 'Quantum-Safe Readiness Check',
+  publisher: '',            // e.g. 'Novaala.ai'
+  ctaText: 'Want a full cryptographic inventory and a migration roadmap? Talk to us about a readiness assessment.',
+  ctaButton: 'Book a readiness assessment',
+  ctaUrl: ''                // e.g. 'mailto:hello@example.com?subject=PQC%20readiness%20assessment'
+};
+
+/* ----------------------------------------------------------------
+   Assessment model: 6 domains x 5 questions, each scored 0 to 3.
+   "Not sure" scores 0 and is flagged on the results page.
+------------------------------------------------------------------ */
+const DOMAINS = [
+  { id:'gov', name:'Governance and ownership', short:'Govern', weight:1.2, questions:[
+    { q:'Who owns your organisation\'s move to quantum-safe cryptography?',
+      help:'Migration touches every application, vendor and certificate. Without a named owner it stalls after the first workshop.',
+      o:['Nobody has been assigned','The security team discusses it informally','A named owner, but without a mandate or budget','A named executive owner with a mandate, budget and board reporting'],
+      rec:'Appoint an accountable executive owner and a migration lead, and report progress to the board at least twice a year.' },
+    { q:'Does your cryptography policy address post-quantum algorithms?',
+      help:'NIST published the first PQC standards (FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA) in August 2024. Policy is where they become your default.',
+      o:['We have no cryptography policy','We have a policy, but it is silent on PQC','The policy names approved PQC algorithms','The policy requires PQC or hybrid for new systems, with an exception process'],
+      rec:'Update the cryptography standard to name approved PQC algorithms (ML-KEM, ML-DSA, SLH-DSA) and require hybrid or PQC for new systems.' },
+    { q:'How is quantum-safe migration funded?',
+      help:'Inventory, re-engineering and vendor upgrades run over several years. One-off funding usually covers discovery only.',
+      o:['No funding','Ad hoc, from the general security budget','Funded for discovery and planning','A funded multi-year programme'],
+      rec:'Fund discovery and planning now, and put a multi-year migration line into the next budget cycle.' },
+    { q:'Have you mapped the regulations and guidance that apply to you?',
+      help:'In the UAE this includes the National Encryption Policy (Nov 2025), sector regulators such as CBUAE, DFSA and FSRA, and Dubai DESC\'s quantum readiness guideline.',
+      o:['Not looked at','Aware in general terms','Mapped the applicable requirements','Mapped, owned and tracked for changes'],
+      rec:'Map the National Encryption Policy and your sector regulator\'s expectations to owners and dates, and track them for change.' },
+    { q:'Do you have an approved transition plan from classical to post-quantum cryptography?',
+      help:'The UAE National Encryption Policy requires government entities to hold formally approved transition plans. Other regulators are moving the same way.',
+      o:['No plan','A draft in progress','An approved plan with phases','An approved plan with dated milestones that is resourced and tracked'],
+      rec:'Turn your inventory and risk priorities into an approved transition plan with phases, dated milestones and owners.' }
+  ]},
+  { id:'inv', name:'Cryptographic inventory', short:'Inventory', weight:1.3, questions:[
+    { q:'Do you know where public-key cryptography (RSA, ECC, Diffie-Hellman) is used across the organisation?',
+      help:'These are the algorithms a quantum computer breaks. You cannot migrate what you cannot find.',
+      o:['No','A partial manual list, mostly certificates','A manual inventory of major systems','An automated inventory that updates continuously'],
+      rec:'Run automated cryptographic discovery and keep the inventory live, as the UAE National Encryption Policy expects.' },
+    { q:'How much of your estate does discovery cover?',
+      help:'Certificates are the easy part. Most hidden cryptography sits in code, libraries, network gear, cloud services and OT devices.',
+      o:['Nothing yet','Certificates and TLS endpoints only','Also applications, code and libraries','Also network, cloud, HSMs, endpoints and OT'],
+      rec:'Extend discovery beyond certificates to source code, libraries, network devices, cloud key services, HSMs and OT.' },
+    { q:'Do you produce a cryptographic bill of materials (CBOM) for your software?',
+      help:'A CBOM lists the algorithms, key sizes and libraries in a system, the way an SBOM lists components.',
+      o:['Not familiar with CBOMs','Aware, but none produced','Produced for some critical applications','Required for all in-house and procured software'],
+      rec:'Produce CBOMs for critical applications first, then make them a release and procurement requirement.' },
+    { q:'How are certificates and keys managed?',
+      help:'Migration means re-issuing large numbers of certificates and keys. Manual tracking will not scale.',
+      o:['Spreadsheets, or not tracked','Partly in a certificate management tool','Most certificates in a central tool with expiry alerts','Central certificate and key management with automated renewal'],
+      rec:'Move certificates and keys into central lifecycle management with automated issuance and renewal.' },
+    { q:'Do you know what cryptography your cloud and SaaS providers use on your behalf?',
+      help:'Much of your encrypted data travels through services you do not control.',
+      o:['Unknown','We assume the provider handles it','We have asked our key providers','Visibility is part of our contracts and reviews'],
+      rec:'Ask critical cloud and SaaS providers for their PQC roadmap and the cryptography protecting your data, and record it in the inventory.' }
+  ]},
+  { id:'risk', name:'Risk and data priorities', short:'Risk', weight:1.2, questions:[
+    { q:'Have you classified data by how long it must stay confidential?',
+      help:'Attackers can record encrypted traffic today and decrypt it later ("harvest now, decrypt later"). Data that must stay secret for 10 years or more is already at risk.',
+      o:['No','Informally','For critical data sets','Across the estate, linked to the crypto inventory'],
+      rec:'Classify data by confidentiality lifetime and flag anything that must stay secret beyond 2030 for early migration.' },
+    { q:'Have you assessed your exposure to harvest-now, decrypt-later attacks?',
+      help:'This shows which systems need quantum-safe key exchange first.',
+      o:['No','Discussed qualitatively','Assessed for critical systems','Scored for all systems, and the scores set migration order'],
+      rec:'Score each system for harvest-now, decrypt-later exposure and use the score to set migration order.' },
+    { q:'Have you prioritised which systems migrate first?',
+      help:'Migration order depends on data lifetime, exposure, and dependencies such as shared PKI and vendors.',
+      o:['No','Some ideas','A prioritised list','A prioritised sequence that accounts for dependencies'],
+      rec:'Build a prioritised migration sequence that accounts for shared dependencies such as PKI, HSMs and vendors.' },
+    { q:'Have you identified long-lived signatures and trust anchors?',
+      help:'Root CAs, code and firmware signing keys and signed records can last 10 to 20 years and are hard to replace.',
+      o:['Not considered','Known issue, not yet analysed','Identified the long-lived roots and signed assets','A plan for PQC or hybrid signatures and root rollover'],
+      rec:'List root CAs, code and firmware signing keys and long-lived signed records, and plan PQC or hybrid signatures for them.' },
+    { q:'Is quantum risk in your enterprise risk register?',
+      help:'Recording it makes the risk visible to the board and gives it an appetite, owner and review cycle.',
+      o:['No','Mentioned under general cyber risk','Recorded as a specific risk','Recorded with appetite, indicators and regular review'],
+      rec:'Record quantum risk as a specific entry in the enterprise risk register, with an owner, appetite and key risk indicators.' }
+  ]},
+  { id:'agile', name:'Crypto-agility and architecture', short:'Agility', weight:1.0, questions:[
+    { q:'How are algorithms chosen in your applications?',
+      help:'Crypto-agility means swapping an algorithm by configuration, not by rewriting code.',
+      o:['Mostly hard-coded','A mix of hard-coded and configurable','Mostly configurable through standard libraries','Through central crypto services, swappable by configuration'],
+      rec:'Move algorithm choice out of code into configuration or a central crypto service, starting with critical applications.' },
+    { q:'Is crypto-agility a requirement for new systems?',
+      help:'The UAE National Encryption Policy treats crypto-agility as a design requirement, not a retrofit.',
+      o:['No','Informally encouraged','Written into architecture standards','Enforced in design reviews and procurement'],
+      rec:'Add crypto-agility to architecture standards and check it in design reviews and procurement.' },
+    { q:'Do your HSMs and key management systems support PQC?',
+      help:'HSM firmware and hardware upgrades often have long lead times and drive the migration timeline.',
+      o:['Unknown','Not supported','Vendor roadmap confirmed','PQC-capable firmware deployed or tested'],
+      rec:'Confirm PQC support and dates with your HSM and KMS vendors and plan any firmware or hardware refresh.' },
+    { q:'How current are your crypto libraries and protocols?',
+      help:'PQC arrives through modern stacks such as TLS 1.3 and current OpenSSL and BoringSSL releases. Legacy versions cannot take it.',
+      o:['Many legacy versions (TLS 1.0/1.1, old libraries)','Some legacy remains','Mostly current','Current and tracked through SBOMs'],
+      rec:'Retire TLS 1.0/1.1 and outdated crypto libraries, and track library versions through SBOMs.' },
+    { q:'Have you tested the impact of larger PQC keys and signatures?',
+      help:'PQC public keys and signatures are larger. They can break packet sizes, embedded devices and latency budgets.',
+      o:['No','Aware of the issue','Lab-tested on some systems','Tested across critical paths'],
+      rec:'Test PQC key and signature sizes on critical paths, including constrained devices, network MTU and latency budgets.' }
+  ]},
+  { id:'vendor', name:'Vendors and supply chain', short:'Vendors', weight:0.9, questions:[
+    { q:'Have you collected PQC roadmaps from your critical vendors?',
+      help:'Your migration finishes only when your vendors\' does.',
+      o:['No','From a few vendors, informally','Documented for key vendors','Tracked with dates for all critical vendors'],
+      rec:'Request and track dated PQC roadmaps from every critical technology vendor.' },
+    { q:'Do your contracts require PQC readiness?',
+      help:'Contracts signed today will still be running when quantum-vulnerable algorithms are deprecated.',
+      o:['No','Ad hoc, in a few contracts','A standard clause for new contracts','A clause covering PQC, crypto-agility and CBOMs in all critical contracts and renewals'],
+      rec:'Add a standard clause requiring PQC support, crypto-agility and a CBOM to new contracts and renewals.' },
+    { q:'Are you tracking the readiness of payment, partner and government networks you connect to?',
+      help:'Card schemes, SWIFT, interbank rails and government gateways will set their own transition dates.',
+      o:['No','Aware they will change','Tracking their timelines','Joint testing planned or under way'],
+      rec:'Track the PQC timelines of the networks you connect to (payment schemes, SWIFT, government gateways) and plan joint testing.' },
+    { q:'Have you assessed long-lived devices such as OT, IoT and smart cards?',
+      help:'Devices deployed today may still be in service in 2035 and may not take a firmware upgrade.',
+      o:['Not assessed','Known issue','Inventory of long-lived devices','Replacement or upgrade plan aligned to the migration'],
+      rec:'Inventory long-lived OT, IoT and card devices and align their replacement or upgrade cycles to the migration plan.' },
+    { q:'Do you have access to PQC skills through partners?',
+      help:'PQC expertise is scarce. Most organisations combine a small internal team with external specialists.',
+      o:['No','Ad hoc','A provider identified','A partner engaged with an agreed plan'],
+      rec:'Identify a specialist partner for discovery and migration support to cover internal skill gaps.' }
+  ]},
+  { id:'mig', name:'Migration and testing', short:'Migrate', weight:0.8, questions:[
+    { q:'Have you piloted hybrid or post-quantum cryptography?',
+      help:'A hybrid key exchange such as X25519 plus ML-KEM-768 in TLS is the usual first step.',
+      o:['No','Researching','A lab pilot','A production pilot on at least one service'],
+      rec:'Pilot hybrid key exchange (for example X25519 with ML-KEM-768) on one externally facing service.' },
+    { q:'Have you switched on PQC features your platforms already offer?',
+      help:'Current browsers, CDNs, cloud load balancers and VPNs increasingly offer hybrid PQC key exchange.',
+      o:['Unknown','Available but not switched on','Switched on for some services','On by default wherever supported'],
+      rec:'Switch on the hybrid PQC options your browsers, CDNs, load balancers and VPNs already support.' },
+    { q:'Does your team have PQC skills?',
+      help:'Engineers need to understand the new algorithms, their trade-offs and hybrid deployment.',
+      o:['None','One or two individuals','A trained team','A trained team with playbooks and partner support'],
+      rec:'Train a core team of architects and engineers on PQC algorithms, hybrid deployment and testing.' },
+    { q:'Do you have an environment for testing cryptographic changes?',
+      help:'Interoperability problems surface in testing, not in design documents.',
+      o:['None','Ad hoc','A lab environment','A standing environment with interoperability tests'],
+      rec:'Set up a standing test environment for cryptographic changes, with interoperability tests against partners.' },
+    { q:'How do you measure and report migration progress?',
+      help:'Regulators are starting to ask for evidence, not intentions. In August 2026 Saudi Arabia\'s SAMA set dated deadlines for inventory and risk assessment.',
+      o:['Not measured','Informally','Metrics defined','A dashboard reported to the board, or to regulators on request'],
+      rec:'Define migration metrics (inventory coverage, systems migrated, vendors ready) and report them to the board.' }
+  ]}
+];
+
+const SECTORS = {
+  gov:   'Federal or emirate government entity',
+  bank:  'Bank (CBUAE-licensed)',
+  nbfi:  'Insurer, exchange house, finance company or payment provider (CBUAE-licensed)',
+  fz:    'DIFC or ADGM-regulated firm',
+  cii:   'Telecom, energy, utilities or other critical infrastructure',
+  health:'Healthcare',
+  other: 'Other private-sector organisation'
+};
+const SIZES = { s:'Under 500 staff', m:'500 to 2,500 staff', l:'Over 2,500 staff' };
+
+const LEVELS = [
+  { min:0,  name:'Level 1: Not started', text:'Quantum risk has not yet been taken on as a programme. The priority is ownership, a first inventory and a view of your most sensitive long-lived data.' },
+  { min:20, name:'Level 2: Aware', text:'The risk is recognised, but there is no complete picture of where vulnerable cryptography sits. Fund discovery and name an owner before planning migration.' },
+  { min:40, name:'Level 3: Planning', text:'Foundations are in place. The next step is turning inventory and risk work into an approved, dated transition plan and starting vendor engagement.' },
+  { min:60, name:'Level 4: Migrating', text:'You have a plan and early pilots. Focus on scaling migration on priority systems, closing vendor gaps and reporting progress.' },
+  { min:80, name:'Level 5: Crypto-agile', text:'You can change algorithms with limited disruption. Keep the inventory live, finish long-lived signature migration and track evolving standards.' }
+];
+
+const REG = {
+  gov: { title:'What applies to you', items:[
+    'The UAE National Encryption Policy and its executive regulation (approved November 2025) require government entities to hold formally approved transition plans from classical to post-quantum cryptography.',
+    'Expect requirements for automated cryptographic discovery, crypto-agility in new systems and priority for data with long confidentiality lifetimes.',
+    'The UAE Cyber Security Council runs a National Post-Quantum Migration Programme, including a national crypto discovery tool and readiness index.' ]},
+  bank: { title:'What applies to you', items:[
+    'As of October 2026 the CBUAE has not published a dated post-quantum deadline. Cryptographic risk is managed under existing cyber and operational-resilience expectations.',
+    'A circular is likely. Saudi Arabia\'s SAMA (August 2026) required a cryptographic inventory by 31 December 2026 and a quantum risk assessment with action plans by 31 March 2027.',
+    'Payment networks and correspondent partners will set their own dates. Track them alongside your regulator.' ]},
+  nbfi: { title:'What applies to you', items:[
+    'The CBUAE supervises insurers, exchange houses, finance companies and payment providers alongside banks. No dated PQC requirement has been issued as of October 2026.',
+    'If the CBUAE follows the SAMA pattern, expect an inventory deadline first, then a risk assessment and action plan.',
+    'Card schemes and payment rails will move on their own timelines, so track them now.' ]},
+  fz: { title:'What applies to you', items:[
+    'The DFSA has published analysis of quantum risk (June 2025) and briefed firms on post-quantum cryptography, but has not set a deadline.',
+    'ADGM\'s FSRA is taking part in a cross-border PQC pilot for digital-asset transfers.',
+    'Group-level requirements from other jurisdictions (EU, US, UK, Switzerland) may reach you first.' ]},
+  cii: { title:'What applies to you', items:[
+    'Critical infrastructure is in scope of the UAE National Post-Quantum Migration Programme, which uses a national crypto discovery tool and readiness index.',
+    'The National Encryption Policy applies to bodies handling critical and personal data. Expect automated inventory and crypto-agility requirements.',
+    'Long-lived OT and network equipment usually sets the critical path, so start device inventories early.' ]},
+  health: { title:'What applies to you', items:[
+    'Health records must stay confidential for decades, which makes harvest-now, decrypt-later a present risk.',
+    'The National Encryption Policy covers bodies handling critical and personal data. Dubai entities should also follow DESC\'s quantum readiness guideline.',
+    'Medical devices are often long-lived and hard to upgrade, so include them in the inventory.' ]},
+  other: { title:'What applies to you', items:[
+    'You may not be directly bound yet, but government and regulated customers will start asking suppliers about PQC readiness.',
+    'Dubai entities should follow DESC\'s three-phase quantum readiness guideline (plan, prepare, execute).',
+    'NIST\'s transition guidance proposes deprecating quantum-vulnerable algorithms by 2030 and disallowing them by 2035, which will shape vendor products everywhere.' ]}
+};
+
+/* ------------------------------ state ------------------------------ */
+const QUESTIONS = DOMAINS.flatMap((d, di) => d.questions.map((q, qi) => ({ ...q, d, di, qi, id: d.id + (qi + 1) })));
+const TOTAL = QUESTIONS.length;
+const KEY = 'pqc-readiness-v1';
+let S = { view:'intro', profile:{ org:'', sector:'', size:'' }, answers:{}, current:0 };
+function load(){ try { const raw = localStorage.getItem(KEY); if (raw) { const v = JSON.parse(raw); if (v && v.answers) S = { ...S, ...v }; } } catch(e){} }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function reset(){ S = { view:'intro', profile:{ org:'', sector:'', size:'' }, answers:{}, current:0 }; try { localStorage.removeItem(KEY); } catch(e){} }
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const val = a => (a === 'ns' || a === undefined) ? 0 : a;
+const answered = () => QUESTIONS.filter(q => S.answers[q.id] !== undefined).length;
+
+function scores(){
+  const dom = DOMAINS.map(d => {
+    const sum = d.questions.reduce((s, q, qi) => s + val(S.answers[d.id + (qi + 1)]), 0);
+    return { d, pct: Math.round(sum / (d.questions.length * 3) * 100) };
+  });
+  const overall = Math.round(dom.reduce((s, x) => s + x.pct, 0) / dom.length);
+  const level = [...LEVELS].reverse().find(l => overall >= l.min);
+  const gaps = QUESTIONS.map(q => ({ q, a: S.answers[q.id], v: val(S.answers[q.id]) }))
+    .filter(x => x.v <= 1)
+    .map(x => ({ ...x, pr: (3 - x.v) * x.q.d.weight + (x.a === 'ns' ? 0.3 : 0) }))
+    .sort((a, b) => b.pr - a.pr || a.q.di - b.q.di || a.q.qi - b.q.qi)
+    .slice(0, 8);
+  const notSure = QUESTIONS.filter(q => S.answers[q.id] === 'ns').length;
+  return { dom, overall, level, gaps, notSure };
+}
+
+/* ----------------------------- lattice ----------------------------- */
+// columns = domains, rows = questions; colour = score
+const SHADE = ['#F6DEDB', '#CFE6E4', '#3E9493', '#0B6E6E'];
+function lattice({ mode, current = -1, width = 300 }){
+  const cols = DOMAINS.length, rows = 5, gx = 54, gy = 46, pad = 30, r = 13;
+  const w = pad * 2 + gx * (cols - 1), h = pad * 2 + gy * (rows - 1) + (mode === 'hero' ? 0 : 26);
+  let s = `<svg viewBox="0 0 ${w} ${h}" role="${mode === 'nav' ? 'group' : 'img'}" aria-label="${mode === 'nav' ? 'Question navigator' : 'Answer lattice'}">`;
+  // lattice lines
+  for (let c = 0; c < cols; c++) s += `<line x1="${pad + c * gx}" y1="${pad}" x2="${pad + c * gx}" y2="${pad + gy * (rows - 1)}" stroke="#DFE6E8" stroke-width="1.5"/>`;
+  for (let rr = 0; rr < rows; rr++) s += `<line x1="${pad}" y1="${pad + rr * gy}" x2="${pad + gx * (cols - 1)}" y2="${pad + rr * gy}" stroke="#DFE6E8" stroke-width="1.5"/>`;
+  QUESTIONS.forEach((q, i) => {
+    const cx = pad + q.di * gx, cy = pad + q.qi * gy, a = S.answers[q.id];
+    let fill = '#fff', stroke = '#C9D3D6', dash = '';
+    if (mode === 'hero') { const demo = [3,2,1,2,0,3,1,2,2,1,0,1,2,3,2,1,2,0,1,1,2,3,2,1,0,1,2,1,3,2][i]; fill = SHADE[demo]; stroke = fill; }
+    else if (a === 'ns') { fill = '#fff'; stroke = '#6B7E86'; dash = ' stroke-dasharray="3 3"'; }
+    else if (a !== undefined) { fill = SHADE[a]; stroke = a === 0 ? '#C8423B' : SHADE[a]; }
+    const isCur = mode === 'nav' && i === current;
+    const anim = mode === 'hero' ? ` class="hero-dot" style="animation-delay:${(q.di + q.qi) * 60}ms"` : '';
+    const title = mode === 'hero' ? '' : `<title>${esc(q.d.short)} ${q.qi + 1}: ${a === undefined ? 'not answered' : a === 'ns' ? 'not sure' : 'score ' + a + ' of 3'}</title>`;
+    const navAttrs = mode === 'nav' ? ` class="dot" tabindex="0" role="button" data-i="${i}" aria-label="Go to ${esc(q.d.short)} question ${q.qi + 1}${a === undefined ? ', not answered' : ''}"` : '';
+    s += `<g${navAttrs}>${title}${isCur ? `<circle cx="${cx}" cy="${cy}" r="${r + 5}" fill="none" stroke="#13232B" stroke-width="2"/>` : ''}<circle${anim} cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2"${dash}/></g>`;
+  });
+  if (mode !== 'hero') DOMAINS.forEach((d, c) => {
+    s += `<text x="${pad + c * gx}" y="${h - 4}" text-anchor="middle" font-size="11" font-family="Archivo, sans-serif" fill="#3E525B">${esc(d.short)}</text>`;
+  });
+  return s + '</svg>';
+}
+const LEGEND = `<div class="lat-legend"><span><i style="background:#F6DEDB;border:2px solid #C8423B"></i>0</span><span><i style="background:#CFE6E4"></i>1</span><span><i style="background:#3E9493"></i>2</span><span><i style="background:#0B6E6E"></i>3</span><span><i style="background:#fff;border:2px dashed #6B7E86"></i>Not sure</span></div>`;
+
+/* ------------------------------ views ------------------------------ */
+const app = document.getElementById('app');
+
+function viewIntro(){
+  const p = S.profile, started = answered() > 0;
+  app.innerHTML = `<div class="wrap"><section class="intro">
+    <div>
+      <h1>How ready is your cryptography for quantum computers?</h1>
+      <p class="lede">Answer 30 questions across six areas and get a readiness level, a score for each area and a ranked list of gaps to close first. It takes about ten minutes.</p>
+      <ul class="facts">
+        <li>Built around NIST's post-quantum standards and the UAE National Encryption Policy.</li>
+        <li>Your answers stay in this browser. Nothing is uploaded, and you can clear them at any time.</li>
+        <li>Choose "Not sure" whenever you don't know. It counts as a gap, which is usually the honest answer.</li>
+      </ul>
+    </div>
+    <form class="start" id="start-form" novalidate>
+      <div class="lattice-hero" aria-hidden="true">${lattice({ mode:'hero' })}</div>
+      <h2>Start the check</h2>
+      <p class="hint">Your sector decides which regulatory notes you see on the results page.</p>
+      <label class="field"><span>Organisation name (optional)</span><input type="text" id="f-org" maxlength="80" value="${esc(p.org)}" autocomplete="organization"></label>
+      <label class="field"><span>Sector</span><select id="f-sector" required><option value="">Choose your sector</option>${Object.entries(SECTORS).map(([k, v]) => `<option value="${k}"${p.sector === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+      <label class="field"><span>Organisation size</span><select id="f-size"><option value="">Choose a size</option>${Object.entries(SIZES).map(([k, v]) => `<option value="${k}"${p.size === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+      <p id="f-err" class="hint hidden" style="color:#C8423B" role="alert">Choose your sector to continue.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn" type="submit">${started ? 'Continue the check' : 'Start the check'}</button>
+        ${started ? '<button class="linkbtn" type="button" id="restart">Clear my answers and start again</button>' : ''}
+      </div>
+    </form>
+  </section></div>`;
+  document.getElementById('start-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const sector = document.getElementById('f-sector').value;
+    if (!sector) { document.getElementById('f-err').classList.remove('hidden'); document.getElementById('f-sector').focus(); return; }
+    S.profile = { org: document.getElementById('f-org').value.trim(), sector, size: document.getElementById('f-size').value };
+    S.view = answered() === TOTAL ? 'results' : 'quiz';
+    if (S.view === 'quiz') { const first = QUESTIONS.findIndex(q => S.answers[q.id] === undefined); S.current = first < 0 ? 0 : first; }
+    save(); render(true);
+  });
+  const rs = document.getElementById('restart');
+  if (rs) rs.addEventListener('click', () => { if (confirm('Clear all answers and start again?')) { reset(); render(true); } });
+}
+
+function viewQuiz(){
+  const q = QUESTIONS[S.current], a = S.answers[q.id], n = answered();
+  const opts = q.o.map((t, k) => `<label class="opt${a === k ? ' sel' : ''}"><input type="radio" name="ans" value="${k}"${a === k ? ' checked' : ''}><span class="mark" aria-hidden="true">${k}</span><span class="t">${esc(t)}</span></label>`).join('')
+    + `<label class="opt ns${a === 'ns' ? ' sel' : ''}"><input type="radio" name="ans" value="ns"${a === 'ns' ? ' checked' : ''}><span class="mark" aria-hidden="true">?</span><span class="t">Not sure</span></label>`;
+  app.innerHTML = `<div class="wrap"><section class="quiz">
+    <aside class="side">
+      <h3>Your answers so far</h3>
+      <div class="lat-nav" id="lat-nav">${lattice({ mode:'nav', current:S.current })}</div>
+      ${LEGEND}
+      <p class="count num">${n} of ${TOTAL} answered</p>
+      ${n === TOTAL ? '<button class="btn" id="see-results" type="button">See my results</button>' : ''}
+    </aside>
+    <div class="qpanel">
+      <div class="qmeta"><span><b>${esc(q.d.name)}</b>, question ${q.qi + 1} of 5</span><span class="num">${S.current + 1} / ${TOTAL}</span></div>
+      <h2 class="qtext" id="qtext" tabindex="-1">${esc(q.q)}</h2>
+      <p class="qhelp">${esc(q.help)}</p>
+      <fieldset><legend>${esc(q.q)}</legend>${opts}</fieldset>
+      <div class="qnav">
+        <button class="btn ghost" type="button" id="prev"${S.current === 0 ? ' disabled' : ''}>Previous</button>
+        <span class="kbd">Keys 0 to 3 answer, N for not sure</span>
+        ${S.current === TOTAL - 1
+          ? `<button class="btn" type="button" id="finish"${n === TOTAL ? '' : ' disabled'}>See my results</button>`
+          : `<button class="btn" type="button" id="next">Next question</button>`}
+      </div>
+      ${S.current === TOTAL - 1 && n < TOTAL ? `<p class="hint" style="margin-top:14px;color:#3E525B">${TOTAL - n} question${TOTAL - n === 1 ? '' : 's'} still unanswered. <button class="linkbtn" type="button" id="jump">Go to the first one</button></p>` : ''}
+    </div>
+  </section></div>`;
+
+  app.querySelectorAll('input[name=ans]').forEach(inp => inp.addEventListener('change', () => choose(inp.value === 'ns' ? 'ns' : +inp.value)));
+  const go = i => { S.current = i; save(); render(); };
+  const prev = document.getElementById('prev'); if (prev) prev.onclick = () => go(S.current - 1);
+  const next = document.getElementById('next'); if (next) next.onclick = () => go(S.current + 1);
+  const fin = document.getElementById('finish'); if (fin) fin.onclick = () => { S.view = 'results'; save(); render(true); };
+  const see = document.getElementById('see-results'); if (see) see.onclick = () => { S.view = 'results'; save(); render(true); };
+  const jump = document.getElementById('jump'); if (jump) jump.onclick = () => go(QUESTIONS.findIndex(x => S.answers[x.id] === undefined));
+  document.querySelectorAll('#lat-nav .dot').forEach(dot => {
+    dot.addEventListener('click', () => go(+dot.dataset.i));
+    dot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(+dot.dataset.i); } });
+  });
+}
+
+function choose(v){
+  const q = QUESTIONS[S.current];
+  S.answers[q.id] = v;
+  // move to next unanswered question after a short pause, so the selection is visible
+  const after = QUESTIONS.findIndex((x, i) => i > S.current && S.answers[x.id] === undefined);
+  const nextI = after >= 0 ? after : (S.current < TOTAL - 1 ? S.current + 1 : S.current);
+  save(); render();
+  if (answered() === TOTAL && S.current === TOTAL - 1) return;
+  clearTimeout(choose.t);
+  choose.t = setTimeout(() => { if (S.view === 'quiz') { S.current = nextI; save(); render(); } }, 260);
+}
+
+function viewResults(){
+  const R = scores(), p = S.profile, reg = REG[p.sector] || REG.other;
+  const who = [p.org, SECTORS[p.sector], SIZES[p.size]].filter(Boolean).map(esc).join(', ');
+  const weakest = [...R.dom].sort((a, b) => a.pct - b.pct).slice(0, 2).map(x => x.d.name.toLowerCase());
+  const plan = [
+    R.dom.find(x => x.d.id === 'gov').pct < 60 ? 'Name an accountable executive owner and agree a budget for discovery and planning.' : 'Confirm the programme owner, budget and board reporting cadence for the next 12 months.',
+    R.dom.find(x => x.d.id === 'inv').pct < 60 ? 'Run automated cryptographic discovery on your most critical systems and start a live inventory.' : 'Extend the live inventory to cloud, OT and third-party services, and produce CBOMs for critical applications.',
+    `Work through the first three gaps above. Your weakest areas are ${weakest[0]}, then ${weakest[1]}.`
+  ];
+  const ctaOn = !!CONFIG.ctaUrl;
+  app.innerHTML = `<div class="wrap">
+    <section class="res-head">
+      <div>
+        ${who ? `<p class="who">${who}</p>` : ''}
+        <h2 style="margin-bottom:18px">Your quantum-safe readiness</h2>
+        <div class="score"><span class="big num">${R.overall}</span><span class="of">out of 100</span></div>
+        <p class="level">${esc(R.level.name)}<small>${esc(R.level.text)}</small></p>
+      </div>
+      <div class="res-actions">
+        <button class="btn" type="button" id="print">Save as PDF</button>
+        <button class="btn ghost" type="button" id="csv">Download answers (CSV)</button>
+        <button class="btn ghost" type="button" id="edit">Change answers</button>
+        <button class="btn ghost" type="button" id="again">Start again</button>
+      </div>
+    </section>
+    <section class="res-grid">
+      <div>
+        <h3 class="sect-title">Score by area</h3>
+        <div class="bars">${R.dom.map(x => `<div class="barrow"><span>${esc(x.d.name)}</span><div class="track" role="img" aria-label="${esc(x.d.name)}: ${x.pct} out of 100"><div class="fill${x.pct < 40 ? ' low' : ''}" style="width:${Math.max(x.pct, 2)}%"></div></div><span class="pct num">${x.pct}</span></div>`).join('')}</div>
+        ${R.notSure ? `<p class="heat-cap" style="margin-top:16px">You answered "Not sure" ${R.notSure} time${R.notSure === 1 ? '' : 's'}. Those count as zero, so finding the answers may raise your score.</p>` : ''}
+      </div>
+      <div class="heat">
+        <h3 class="sect-title">Every answer at a glance</h3>
+        ${lattice({ mode:'results' })}
+        ${LEGEND}
+        <p class="heat-cap">Each column is an area and each dot a question. Darker dots are more mature answers.</p>
+      </div>
+      <div class="full">
+        <h3 class="sect-title">Gaps to close first</h3>
+        ${R.gaps.length ? `<ol class="gaps">${R.gaps.map(g => `<li><div><p class="gq">${esc(g.q.rec)}</p><p class="gd">${esc(g.q.d.name)}: you answered "${g.a === 'ns' ? 'Not sure' : esc(g.q.o[g.a])}"</p></div></li>`).join('')}</ol>`
+          : '<p>No question scored below 2. Keep the inventory live and track evolving standards and vendor dates.</p>'}
+      </div>
+      <div class="plan">
+        <h3 class="sect-title">Your next 90 days</h3>
+        <ol>${plan.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+      </div>
+      <div class="note">
+        <h3>${esc(reg.title)}</h3>
+        <ul>${reg.items.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+        <p class="heat-cap" style="margin:10px 0 0">Based on public information as of October 2026.</p>
+      </div>
+    </section>
+    ${ctaOn ? `<section class="cta"><p>${esc(CONFIG.ctaText)}</p><a class="btn" href="${esc(CONFIG.ctaUrl)}" target="_blank" rel="noopener">${esc(CONFIG.ctaButton)}</a></section>` : ''}
+  </div>`;
+  document.getElementById('print').onclick = () => window.print();
+  document.getElementById('csv').onclick = downloadCSV;
+  document.getElementById('edit').onclick = () => { S.view = 'quiz'; S.current = 0; save(); render(true); };
+  document.getElementById('again').onclick = () => { if (confirm('Clear all answers and start again?')) { reset(); render(true); } };
+}
+
+function downloadCSV(){
+  const R = scores();
+  const q = s => '"' + String(s).replace(/"/g, '""') + '"';
+  const lines = [['Area', 'Question', 'Answer', 'Score (0-3)'].map(q).join(',')];
+  QUESTIONS.forEach(x => { const a = S.answers[x.id]; lines.push([x.d.name, x.q, a === 'ns' ? 'Not sure' : a === undefined ? '' : x.o[a], val(a)].map(q).join(',')); });
+  lines.push('');
+  R.dom.forEach(x => lines.push([x.d.name, 'Area score (0-100)', '', x.pct].map(q).join(',')));
+  lines.push(['Overall', R.level.name, '', R.overall].map(q).join(','));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href = url; link.download = 'pqc-readiness-answers.csv'; document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function render(scrollTop){
+  document.getElementById('app-name').textContent = CONFIG.appName;
+  document.getElementById('footer-org').textContent = CONFIG.publisher ? 'Published by ' + CONFIG.publisher + '.' : '';
+  document.getElementById('bar-meta').textContent = S.view === 'quiz' ? `${answered()} of ${TOTAL} answered` : 'Runs in your browser. Nothing is sent anywhere.';
+  if (S.view === 'quiz') viewQuiz(); else if (S.view === 'results') viewResults(); else viewIntro();
+  if (scrollTop) window.scrollTo(0, 0);
+  if (S.view === 'quiz') { const h = document.getElementById('qtext'); if (h && document.activeElement && !document.activeElement.closest('.opt')) h.focus({ preventScroll: true }); }
+}
+
+document.addEventListener('keydown', e => {
+  if (S.view !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName) && e.target.type !== 'radio') return;
+  if (/^[0-3]$/.test(e.key)) choose(+e.key);
+  else if (e.key === 'n' || e.key === 'N') choose('ns');
+  else if (e.key === 'ArrowRight' && S.current < TOTAL - 1 && !e.target.closest('.opt')) { S.current++; save(); render(); }
+  else if (e.key === 'ArrowLeft' && S.current > 0 && !e.target.closest('.opt')) { S.current--; save(); render(); }
+});
+document.getElementById('home-link').addEventListener('click', e => { e.preventDefault(); S.view = 'intro'; save(); render(true); });
+
+load();
+document.title = CONFIG.appName;
+render();
+</script>
+</body>
+</html>
